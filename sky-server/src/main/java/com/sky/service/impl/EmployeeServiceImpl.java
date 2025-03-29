@@ -15,6 +15,7 @@ import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
 import com.sky.result.PageResult;
+import com.sky.result.Result;
 import com.sky.service.EmployeeService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,7 +110,33 @@ public class EmployeeServiceImpl implements EmployeeService {
         long total = page.getTotal();
         List<Employee> records = page.getResult();
         //返回一个PageResult对象，是两个参数
-        return new PageResult(total,records);
+        return new PageResult(total, records);
     }
 
+
+    /*
+     * 启用禁用员工账号
+     * @param status
+     * @param id
+     * @return
+     * */
+    //根据id来修改员工账号的状态 所以需要对员工表进行SQL语句查询
+    public void startOrStop(Integer status, Long id) {
+        //update employee set status = ? where id = ?
+
+        //传统写法
+/*        Employee employee = new Employee();
+        employee.setId(id);
+        employee.setStatus(status);*/
+
+        //由于Employee中有构建器，所以使用bulider来构建实体对象
+        Employee employee = Employee.builder()
+                .status(status)
+                .id(id)
+                .build();
+
+        //在mappering层进行修改 update进行一个动态更新 传入员工
+        employeeMapper.update(employee);
+
+    }
 }
