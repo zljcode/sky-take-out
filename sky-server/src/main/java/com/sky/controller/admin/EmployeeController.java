@@ -100,17 +100,43 @@ public class EmployeeController {
     }
 
     /*
-    * 启用禁用员工账号
-    * @param status
-    * @param id
-    * @return
-    * */
+     * 启用禁用员工账号
+     * @param status
+     * @param id
+     * @return
+     * */
     //路径参数需要加注解@Pathvariable  @Pathvariable取路径参数放到{status}之中
     @PostMapping("/status/{status}")
     @ApiOperation("启用禁用员工账号")
     public Result startOrStop(@PathVariable Integer status, Long id) {
         log.info("启用禁用员工账号：{}，{}", status, id);
-        employeeService.startOrStop(status,id);
+        employeeService.startOrStop(status, id);
+        return Result.success();
+    }
+
+    /*
+     * 根据id查询员工信息
+     * @param id
+     * @return
+     * */
+    // 返回一个Employee泛型的对象
+    @GetMapping("/{id}")
+    @ApiOperation("根据id查询员工信息")
+    public Result<Employee> getById(@PathVariable Long id) {
+        Employee employee = employeeService.getById(id);
+        return Result.success(employee);
+    }
+
+    /**
+     * 编辑员工信息
+     * @param employeeDTO
+     */
+    // 因为从前端接收到的是json类型的文件，所以要使用@RequestBody的注解
+    @PutMapping
+    @ApiOperation("编辑员工信息")
+    public Result update(@RequestBody EmployeeDTO employeeDTO){
+        log.info("编辑员工信息：{}", employeeDTO);
+        employeeService.update(employeeDTO);
         return Result.success();
     }
 

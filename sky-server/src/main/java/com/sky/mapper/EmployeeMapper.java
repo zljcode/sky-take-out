@@ -37,10 +37,20 @@ public interface EmployeeMapper {
     Page<Employee> pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
 
     /*
-    * 根据主键动态修改属性
-    * @param employee
-    * 动态SQL语句不使用上方的插入方法进行注解的写法了
-    * 在Mapper的映射文件中取编写
-    * */
+     * 根据主键动态修改属性
+     * @param employee
+     * 动态SQL语句不使用上方的插入方法进行注解的写法了
+     * 在Mapper的映射文件中取编写
+     * */
     void update(Employee employee);
+
+
+    /*
+     * 根据id查询员工信息
+     * @param id
+     * @return
+     */
+    // 通过注解的方式进行查询
+    @Select("select * from employee where id =#{id}")
+    Employee getById(Long id);
 }
