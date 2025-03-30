@@ -8,5 +8,5 @@ sky:
     password: "102311243"
   alioss:
     endpoint: oss-cn-wuhan-lr.aliyuncs.com
-
     bucket-name: zephyr-0131
+
