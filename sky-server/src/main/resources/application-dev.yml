@@ -6,3 +6,7 @@ sky:
     database: sky_take_out
     username: root
     password: "102311243"
+  alioss:
+    endpoint: oss-cn-wuhan-lr.aliyuncs.com
+
+    bucket-name: zephyr-0131
