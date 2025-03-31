@@ -9,5 +9,10 @@ sky:
   alioss:
     endpoint: oss-cn-wuhan-lr.aliyuncs.com
     bucket-name: zephyr-0131
+  redis:
+    host: localhost
+    port: 6379
+    password: 123456
+    database: 10
 
 

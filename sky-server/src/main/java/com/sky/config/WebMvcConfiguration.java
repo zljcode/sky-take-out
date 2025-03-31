@@ -48,7 +48,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
      * @return
      */
     @Bean
-    public Docket docket() {
+    public Docket docket1() {
         log.info("准备生成接口文档...");
         ApiInfo apiInfo = new ApiInfoBuilder()
                 .title("苍穹外卖项目接口文档")
@@ -56,9 +56,32 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
                 .description("苍穹外卖项目接口文档")
                 .build();
         Docket docket = new Docket(DocumentationType.SWAGGER_2)
+                .groupName("管理端接口")
                 .apiInfo(apiInfo)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.sky.controller"))  //指定扫描的包
+                .apis(RequestHandlerSelectors.basePackage("com.sky.controller.admin"))  //指定扫描的包
+                .paths(PathSelectors.any())
+                .build();
+        return docket;
+    }
+
+    /**
+     * 用户端接口
+     * @return
+     */
+    @Bean
+    public Docket docket2() {
+        log.info("准备生成接口文档...");
+        ApiInfo apiInfo = new ApiInfoBuilder()
+                .title("苍穹外卖项目接口文档")
+                .version("2.0")
+                .description("苍穹外卖项目接口文档")
+                .build();
+        Docket docket = new Docket(DocumentationType.SWAGGER_2)
+                .groupName("用户端接口")
+                .apiInfo(apiInfo)
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.sky.controller.user"))  //指定扫描的包
                 .paths(PathSelectors.any())
                 .build();
         return docket;
@@ -81,12 +104,12 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
      * 统一对我们后端返回给前端的数据进行转换的处理
      * */
     protected void extendMessageConverters(List<org.springframework.http.converter.HttpMessageConverter<?>> converters) {
-       log.info("扩展消息转换器..."); // converters容器自带了8个消息转换器
+        log.info("扩展消息转换器..."); // converters容器自带了8个消息转换器
         //创建一个消息转换器对象
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
         // 需要为消息转换器设置一个对象转换器，对象转换器可以将java对象序列化为json数据
         converter.setObjectMapper(new JacksonObjectMapper());
         //将自己的消息转换器加入到容器中 0表示我们写的消息转换器是排在第一位使用
-        converters.add(0,converter);
+        converters.add(0, converter);
     }
 }
