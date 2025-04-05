@@ -9,10 +9,16 @@ sky:
   alioss:
     endpoint: oss-cn-wuhan-lr.aliyuncs.com
     bucket-name: zephyr-0131
+
+
   redis:
     host: localhost
     port: 6379
     password: 123456
     database: 10
+
+  wechat:
+    appid: wx4036d1363843e3a3
+    secret: f8d76d7835f98685fec9ace2890f0ef8
 
 
