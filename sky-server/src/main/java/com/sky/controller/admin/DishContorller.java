@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.info.ProjectInfoAutoConfiguration;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -141,6 +142,10 @@ public class DishContorller {
     @ApiOperation("菜品起售停售")
     public Result startOrStop(@PathVariable Integer status,Long id){
         dishService.startOrStop(status,id);
+
+        //将所有的菜品缓存数据清理掉，所有dish_开头的key
+        cleanCache("dish_*");
+
         return Result.success();
     }
 
