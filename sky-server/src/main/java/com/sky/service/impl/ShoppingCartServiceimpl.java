@@ -128,7 +128,7 @@ public class ShoppingCartServiceimpl implements ShoppingCartService {
 
         //判断当前购物车中是否为空
         if (list != null && list.size() > 0) {
-            //获取第一个购物车，也只有一个购物车
+            //获取购物车中的商品数据，这个商品根据 dishId UserId的限制，所以它是唯一的，所以只查第一个就行了 list中也只有唯一的数据
             shoppingCart = list.get(0);
 
             //获取当前购物车中的要删除商品的数量
