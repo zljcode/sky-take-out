@@ -10,6 +10,7 @@ import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.entity.*;
 import com.sky.exception.AddressBookBusinessException;
+import com.sky.exception.OrderBusinessException;
 import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.*;
 import com.sky.result.PageResult;
@@ -25,9 +26,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.sky.utils.WeChatPayUtil;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -253,11 +256,84 @@ public class OrderServiceimpl implements OrderService {
         //查询该订单对应的菜品/套餐信息
         List<OrderDetail> orderDetailslist = orderDetailMapper.getByOrderId(orders.getId());
 
-        //将获取到的东西封装到OrderVO进行返回
+        //将获取到的东西封装到OrderVO进行返回  前端需要获得订单的基础信息以及订单中的细节信息
         OrderVO orderVO = new OrderVO();
         BeanUtils.copyProperties(orders, orderVO);
         orderVO.setOrderDetailList(orderDetailslist);
 
         return orderVO;
+    }
+
+   /* *//**
+     * @param id
+     * @return
+     *//*
+    public void userCancelById(Long id) throws Exception {
+        //根据id查询订单
+        Orders ordersDB = orderMapper.getById(id);
+
+        //健壮性检查，检查订单是否存在
+        if (ordersDB == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
+        //检查订单状态：1待付款 2待接单 3已接单 4派送中 5已完成 6已取消  3往后的不允许取消订单
+        if (ordersDB.getStatus() > 2) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        Orders orders = new Orders();
+        orders.setId(ordersDB.getId());
+
+        //订单处于待接单状态下取消，需要进行退款
+        if(ordersDB.getStatus().equals(Orders.TO_BE_CONFIRMED)){
+            //调用微信支付退款接口
+            weChatPayUtil.refund(
+                    ordersDB.getNumber(), //商户订单号
+                    ordersDB.getNumber(), //商户退款单号
+                    new BigDecimal(0.01),//退款金额，单位 元
+                    new BigDecimal(0.01));//原订单金额
+
+            //支付状态修改为 退款
+            orders.setStatus(Orders.REFUND);
+        }
+
+        //更新订单状态、取消原因、取消时间
+        orders.setStatus(Orders.CANCELLED);
+        orders.setCancelReason("用户取消");
+        orders.setOrderTime(LocalDateTime.now());
+        orderMapper.update(orders);
+    }*/
+
+    /**
+     * 用户再来一单
+     * @param id
+     * @return
+     */
+    @Override
+    public void repetition(Long id) {
+        //查询当前用户id
+        Long userId = BaseContext.getCurrentId();
+
+        // 通过id获取订单
+        Orders orders = orderMapper.getById(id);
+
+        //根据订单id获取订单详情
+        List<OrderDetail> orderDetails = orderDetailMapper.getByOrderId(orders.getId());
+
+        //将订单对象转换为购物车对象
+        List<ShoppingCart> shoppingCartList = orderDetails.stream().map(x -> {
+            ShoppingCart shoppingCart = new ShoppingCart();
+
+            //将原订单详情里面的菜品或套餐信息重新复制到购物车对象之中
+            BeanUtils.copyProperties(x, shoppingCart, "id");
+            shoppingCart.setUserId(userId);
+            shoppingCart.setCreateTime(LocalDateTime.now());
+
+            return shoppingCart;
+        }).collect(Collectors.toList());
+
+        //将购物车对象批量插入数据库
+        orderMapper.insertBatch(shoppingCartList);
     }
 }

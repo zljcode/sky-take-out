@@ -10,13 +10,15 @@ import com.sky.vo.OrderVO;
 public interface OrderService {
     /**
      * 用户下单
-      * @param ordersSubmitDTO
+     *
+     * @param ordersSubmitDTO
      * @return
      */
     OrderSubmitVO submitOrder(OrdersSubmitDTO ordersSubmitDTO);
 
     /**
      * 订单支付
+     *
      * @param ordersPaymentDTO
      * @return
      */
@@ -24,12 +26,14 @@ public interface OrderService {
 
     /**
      * 支付成功，修改订单状态
+     *
      * @param outTradeNo
      */
     void paySuccess(String outTradeNo);
 
     /**
      * 查询历史订单
+     *
      * @param page
      * @param pageSize
      * @param status
@@ -39,8 +43,18 @@ public interface OrderService {
 
     /**
      * 查询订单详情
+     *
      * @param orderId
      * @return
      */
     OrderVO queryOrder(Long orderId);
+
+    /**
+     * 用户再来一单
+     *
+     * @param id
+     * @return
+     */
+    void repetition(Long id);
+
 }
