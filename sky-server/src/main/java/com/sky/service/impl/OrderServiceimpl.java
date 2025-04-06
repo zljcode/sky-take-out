@@ -20,6 +20,7 @@ import com.sky.vo.OrderVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.sky.utils.WeChatPayUtil;
@@ -192,22 +193,30 @@ public class OrderServiceimpl implements OrderService {
      */
     @Override
     public PageResult pageQueryUser(int pageNum, int pageSize, Integer status) {
+        /* 代码设计逻辑：
+            1、页面肯定是要有分页的
+            2、先获取userId再通过调用Mapper层的订单查询，来查询数据库中订单表，查询出该用户所有的订单罗列在主页面上，
+            这里是将所有订单封装放在一个Page<Orders>泛型中
+            3、建立一个泛型List<OrderVO>，订单视图对象泛型 用于存储订单明细
+            4、将订单明细放在泛型中，作为当前页面的数据集合
+            5、PageResult对象中有总记录数和数据集合两个参数，进行封装然后返回PageResult这个对象
+        */
         //设置分页
         PageHelper.startPage(pageNum, pageSize);
 
         //封装该订单的所有人和状态
         OrdersPageQueryDTO ordersPageQueryDTO = new OrdersPageQueryDTO();
-        ordersPageQueryDTO.setStatus(status);
-        ordersPageQueryDTO.setUserId(BaseContext.getCurrentId());
+        ordersPageQueryDTO.setStatus(status);  //设置状态
+        ordersPageQueryDTO.setUserId(BaseContext.getCurrentId()); //获取用户Id
 
-        //分页条件查询
-        Page<Orders> page = orderMapper.pageQuery(ordersPageQueryDTO);
+        //分页条件查询  这里查询出所有的订单
+        Page<Orders> page = orderMapper.pageQuery(ordersPageQueryDTO);  // 这里通过userId进行查询了
 
         List<OrderVO> list = new ArrayList<>();
 
         //查询出订单明细，使用OrderVO进行响应
         if (page != null && page.size() > 0) {
-            //遍历列表
+            //遍历主页面的订单列表
             for (Orders orders : page) {
                 Long orderId = orders.getId();  // 获取列表中的订单Id
 
@@ -225,5 +234,30 @@ public class OrderServiceimpl implements OrderService {
         PageResult pageResult = new PageResult(page.getTotal(), list);
 
         return pageResult;
+    }
+
+    /**
+     * 查询订单详情
+     *
+     * @param orderId
+     * @return
+     */
+    @Override
+    public OrderVO queryOrder(Long orderId) {
+/*  显示订单的所有信息  OrderVO中有订单菜品信息以及订单详情，
+    用到Orders这个对象，因为它存储了很多的东西包括备注，餐具等*/
+
+        //根据订单id查询订单
+        Orders orders = orderMapper.getById(orderId);
+
+        //查询该订单对应的菜品/套餐信息
+        List<OrderDetail> orderDetailslist = orderDetailMapper.getByOrderId(orders.getId());
+
+        //将获取到的东西封装到OrderVO进行返回
+        OrderVO orderVO = new OrderVO();
+        BeanUtils.copyProperties(orders, orderVO);
+        orderVO.setOrderDetailList(orderDetailslist);
+
+        return orderVO;
     }
 }
