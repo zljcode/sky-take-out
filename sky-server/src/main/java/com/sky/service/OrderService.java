@@ -124,4 +124,11 @@ public interface OrderService {
      * @return
      */
     void userCancelById(Long id) throws Exception;
+
+    /**
+     * 客户催单
+     * @param id
+     * @return
+     */
+    void reminder(Long id);
 }
