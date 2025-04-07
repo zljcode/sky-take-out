@@ -48,6 +48,8 @@ public class OrderController {
         log.info("订单支付：{}", ordersPaymentDTO);
         OrderPaymentVO orderPaymentVO = orderService.payment(ordersPaymentDTO);
         log.info("生成预支付交易单：{}", orderPaymentVO);
+        // 模拟支付成功，更新数据库订单状态 -此时没有回调
+        orderService.paySuccess(ordersPaymentDTO.getOrderNumber());
         return Result.success(orderPaymentVO);
     }
 
@@ -83,18 +85,18 @@ public class OrderController {
     }
 
 
-/*    *//**
+    /*
      *用户取消订单
      * @param id
      * @return
-     *//*
+     */
     @PutMapping("/cancel/{id}")
     @ApiOperation("取消订单")
     public Result cancelOrder(@PathVariable("id") Long id) throws Exception {
         log.info("取消订单");
         orderService.userCancelById(id);
         return Result.success();
-    }*/
+    }
 
     /**
      * 用户再来一单
@@ -103,7 +105,7 @@ public class OrderController {
      */
     @PostMapping("/repetition/{id}")
     @ApiOperation("再来一单")
-    public Result repetition(@PathVariable("id") Long id){
+    public Result repetition(@PathVariable("id") Long id) throws Exception{
         log.info("再来一单");
         orderService.repetition(id);
         return Result.success();

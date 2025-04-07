@@ -95,14 +95,14 @@ public interface OrderService {
      * @param ordersRejectionDTO
      * @return
      */
-    void rejection(OrdersRejectionDTO ordersRejectionDTO);
+    void rejection(OrdersRejectionDTO ordersRejectionDTO) throws Exception;
 
     /**
      * 商家取消订单
      *
      * @param ordersCancelDTO
      */
-    void cancel(OrdersCancelDTO ordersCancelDTO);
+    void cancel(OrdersCancelDTO ordersCancelDTO) throws Exception;
 
     /**
      * 派送订单
@@ -117,4 +117,11 @@ public interface OrderService {
      * @param id
      */
     void complete(Long id);
+
+    /*
+     *用户取消订单
+     * @param id
+     * @return
+     */
+    void userCancelById(Long id) throws Exception;
 }
