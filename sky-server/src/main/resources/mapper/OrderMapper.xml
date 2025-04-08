@@ -114,4 +114,19 @@
         </where>
     </select>
 
+    <select id="getSalesTop10" resultType="com.sky.dto.GoodsSalesDTO">
+        select od.name name,sum(od.number) as number  <!-- 确保别名与 DTO 字段匹配 -->
+        from order_detail od ,orders o
+        where od.order_id = o.id and o.status = 5  <!-- 明确状态字段归属 -->
+        <if test="begin != null">
+            and o.order_time &gt;= #{begin}  <!-- 包含起始日 -->
+        </if>
+        <if test="end != null">
+            and o.order_time &lt;= #{end}    <!-- 包含结束日 -->
+        </if>
+        group by name
+        order by number desc  <!-- 按聚合字段排序 -->
+        limit 0,10
+    </select>
+
 </mapper>
