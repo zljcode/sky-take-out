@@ -20,7 +20,6 @@ public class AddressBookController {
 
     /**
      * 查询当前登录用户的所有地址信息
-     *
      * @return
      */
     @GetMapping("/list")

@@ -95,6 +95,8 @@ public class OrderServiceimpl implements OrderService {
         orders.setPhone(addressBook.getPhone());
         orders.setConsignee(addressBook.getConsignee());
         orders.setUserId(userId);
+        // 设置地址
+        orders.setAddress(addressBook.getAddressDetail());
 
         orderMapper.insert(orders);
 
@@ -282,7 +284,6 @@ public class OrderServiceimpl implements OrderService {
 
         return orderVO;
     }
-
 
 
     /**
@@ -617,6 +618,7 @@ public class OrderServiceimpl implements OrderService {
 
     /**
      * 客户催单
+     *
      * @param id
      */
     @Override
@@ -625,7 +627,7 @@ public class OrderServiceimpl implements OrderService {
         Orders ordersDB = orderMapper.getById(id);
 
         //校验订单是否存在
-        if(ordersDB == null) {
+        if (ordersDB == null) {
             throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
         }
 

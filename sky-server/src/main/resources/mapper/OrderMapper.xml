@@ -80,9 +80,24 @@
         values
         <foreach collection="shoppingCartList" item="sc" separator=",">
             (#{sc.name},#{sc.image},#{sc.userId},#{sc.dishId},#{sc.setmealId},
-             #{sc.dishFlavor},#{sc.amount},#{sc.createTime})
+            #{sc.dishFlavor},#{sc.amount},#{sc.createTime})
         </foreach>
     </insert>
+
+    <select id="sumByMap" resultType="java.lang.Double">
+        select sum(amount) from orders
+        <where>
+            <if test="begin !=null">
+              and  order_time &gt; #{begin}
+            </if>
+            <if test="end !=null">
+                and  order_time &lt; #{end}
+            </if>
+            <if test="status !=null">
+                and  status = #{status}
+            </if>
+        </where>
+    </select>
 
 
 </mapper>
