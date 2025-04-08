@@ -1,9 +1,13 @@
 package com.sky.service.impl;
 
 import com.sky.entity.Orders;
+import com.sky.entity.User;
 import com.sky.mapper.OrderMapper;
+import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.TurnoverReportVO;
+import com.sky.vo.UserReportVO;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.util.StringUtil;
@@ -22,6 +26,10 @@ public class ReportServiceimpl implements ReportService {
     //要查询订单表，所以要注入订单的Mapper
     @Autowired
     private OrderMapper orderMapper;
+
+    //要查询user表，所以注入user的Mapper
+    @Autowired
+    private UserMapper userMapper;
 
     /**
      * 统计指定时间区间内的营业额数据
@@ -69,7 +77,7 @@ public class ReportServiceimpl implements ReportService {
             当一天没有营业额时，Double turnover = orderMapper.sumByMap(map) 为空，空也被加入了，这样不合理，
             所以需要将null转成0
             */
-           turnover = turnover == null ? 0.0 :turnover;
+            turnover = turnover == null ? 0.0 : turnover;
             turnoverList.add(turnover);
         }
 
@@ -82,8 +90,56 @@ public class ReportServiceimpl implements ReportService {
                 .turnoverList(turnoverAll)
                 .dateList(datelists)
                 .build();
-
-
         return turnoverReportVO;
+    }
+
+    /**
+     * 统计指定时间区间内的用户数据
+     *
+     * @param begin
+     * @param end
+     * @return
+     */
+    public UserReportVO getUserStatistics(LocalDate begin, LocalDate end) {
+        //创建一个集合用于存放从begin到end的所有天数
+        List<LocalDate> dateList = new ArrayList<>();
+
+        dateList.add(begin);
+
+        while (!begin.equals(end)) {
+            //日期从begin往后依次加一天 再加进集合中
+            begin = begin.plusDays(1);
+            dateList.add(begin);
+        }
+
+        //存放每天的新增用户数量 根据注册时间去查  select count(id) from user where create_time < ? and create_time > ?
+        List<Integer> newuserList = new ArrayList<>();
+        //存放每天的总用户数量  select count(id) from user where create_time < ?   写一个动态SQl去兼容上面的两个语句
+        List<Integer> totaluserList = new ArrayList<>();
+
+        for (LocalDate date : dateList) {
+            LocalDateTime beginTime = LocalDateTime.of(date, LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
+
+            Map map = new HashMap<>();
+            //先把结束时间放进去，执行的是第二条SQL语句，做到了一个SQL语句两个使用的效果
+            map.put("end", endTime);
+            // 计算每天的总用户数量
+            Integer totalUser = userMapper.countByMap(map);
+
+            map.put("begin", beginTime);
+            //新增用户数量
+            Integer newUser = userMapper.countByMap(map);
+
+            totaluserList.add(totalUser);
+            newuserList.add(newUser);
+        }
+
+        //封装结果数据
+        return UserReportVO.builder()
+                .dateList(StringUtils.join(dateList,","))
+                .totalUserList(StringUtils.join(totaluserList,","))
+                .newUserList(StringUtils.join(newuserList,","))
+                .build();
     }
 }
