@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.regex.Pattern;
 
@@ -102,4 +103,13 @@ public class ReportController {
     }
 
 
+    /**
+     * 导出运营数据报表
+     * @param responsee
+     */
+    @GetMapping("/export")
+    @ApiOperation("导出运营数据报表")
+    public void export(HttpServletResponse responsee){
+        reportService.exportBusinessData(responsee);
+    }
 }
